@@ -16,13 +16,9 @@ const updateStore = (store, newState) => {
     render(root, store).then(() => console.log("Store updated"));
 };
 
-const addEvents = () => {
-    store.rovers.forEach(rover => document.getElementById(rover.name.toLowerCase()+"-tab").addEventListener("click", () => getRoverImages(rover.name.toLowerCase())));
-};
-
 const render = async (root, state) => {
+    getRoverImages(state);
     root.innerHTML = App(state)
-    // addEvents();
 };
 
 // create content
@@ -150,8 +146,8 @@ const getImageOfTheDay = (state) => {
     // return data;
 };
 
-const getRoverImages = (name) => {
-    console.log("STORE", name)
+const getRoverImages = (store) => {
+    console.log("STORE", store)
     const data  = {
         method: "POST",
         headers : {
@@ -159,43 +155,26 @@ const getRoverImages = (name) => {
             'Content-Type': 'application/json'
         },
     }
-
-    const foundRoverIndex =  store.rovers.findIndex(rover => rover.name.toLowerCase() === name);
-    console.log("found rover index", foundRoverIndex);
-    if(foundRoverIndex !== -1 && (!store.rovers[foundRoverIndex].hasOwnProperty("photos") || store.rovers[foundRoverIndex].photos.length === 0)) {
-        // fetch("./assets/temp/response.json").then(res => res.ok ? res.json() : false).then(jsonRes => {
-        //     const newRover = store.rovers[foundRoverIndex];
-        //     console.log("New Rover", newRover);
-        //     if(jsonRes.hasOwnProperty("photos")) {
-        //         newRover.photos = jsonRes.photos;
-        //         newRover.landingDate =  jsonRes.photos[0]["rover"]["landing_date"];
-        //         newRover.launchDate =  jsonRes.photos[0]["rover"]["launch_date"];
-        //         newRover.status =  jsonRes.photos[0]["rover"]["status"];
-        //         const rovers = foundRoverIndex === 0
-        //             ? [newRover, ...store.rovers.slice(1)] :
-        //             [...store.rovers.slice(0, foundRoverIndex), newRover, ...store.rovers.slice(foundRoverIndex + 1)];
-        //         updateStore(store, {rovers});
-        //     }
-        // });
-
+    if(!store.rovers.some(rover => rover.hasOwnProperty("photos"))) {
         data.body = JSON.stringify({date: "2018-01-24"})
-        fetch(`http://localhost:3000/rovers/rover/${name}`, data)
-            .then(res => res.ok ? res.json() : false)
-            .then(jsonRes => {
-                console.log("Json Res", jsonRes);
-                const newRover = store.rovers[foundRoverIndex];
-                console.log("New Rover", newRover);
-                if (jsonRes.hasOwnProperty("roverData")) {
-                    newRover.photos = jsonRes.roverData.photos;
-                    newRover.landingDate = newRover.photos[0]["rover"]["landing_date"];
-                    newRover.launchDate = newRover.photos[0]["rover"]["launch_date"];
-                    newRover.status = newRover.photos[0]["rover"]["status"];
-                    const rovers = foundRoverIndex === 0
-                        ? [newRover, ...store.rovers.slice(1)] :
-                        [...store.rovers.slice(0, foundRoverIndex), newRover, ...store.rovers.slice(foundRoverIndex + 1)];
-                    updateStore(store, {rovers});
-                }
-            });
+        Promise.all(store.rovers.map(rover => {
+            const newRover = JSON.parse(JSON.stringify(rover));
+            if(!rover.hasOwnProperty("photos")) {
+                return fetch(`http://localhost:3000/rovers/rover/${rover.name.toLowerCase()}`, data)
+                    .then(res => res.ok ? res.json() : false)
+                    .then(jsonRes => {
+                        console.log("Json Res", jsonRes);
+                        if (jsonRes.hasOwnProperty("roverData") && jsonRes.roverData.hasOwnProperty("photos") && jsonRes.roverData.photos.length > 0) {
+                            newRover.photos = jsonRes.roverData.photos;
+                            newRover.landingDate = newRover.photos[0]["rover"]["landing_date"];
+                            newRover.launchDate = newRover.photos[0]["rover"]["launch_date"];
+                            newRover.status = newRover.photos[0]["rover"]["status"];
+                        }
+                        return newRover;
+                    });
+            }
+            return newRover;
+        })).then(rovers =>  updateStore(store, { rovers }));
     }
 };
 

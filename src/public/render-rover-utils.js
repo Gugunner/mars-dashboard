@@ -57,6 +57,9 @@ const renderRoverPhotosCarousel = rover => {
         return `
                     <div class="${carouselClass}" data-interval="2000" data-pause="true">
                         <img src=${photo["img_src"]} alt="Photo ${rover.name.toLowerCase()}">
+                        <div class="carousel-caption d-none d-md-block" style="background-color: rgba(78,78,78,0.8)">
+                             ${photo.hasOwnProperty("earth_date") ? `Photo Date: ${new Date(photo["earth_date"]).toLocaleString()}` : ""} 
+                        </div>
                     </div>
                 `
     }).join("")}
