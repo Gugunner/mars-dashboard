@@ -5,3 +5,5 @@
 .idea/
 
 /node_modules
+
+src/public/assets/temp/
