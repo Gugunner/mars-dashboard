@@ -1,40 +1,41 @@
-let store = {
-    user: { name: "Student" },
+let store = Immutable.Map({
+    user: Immutable.Map({ name: "Student" }),
     apod: '',
-    rovers: [
-        {name: 'Curiosity', imgUrl: "https://mars.nasa.gov/system/feature_items/images/6037_msl_banner.jpg"},
-        {name: 'Opportunity', imgUrl: "https://www.jpl.nasa.gov/missions/web/mer.jpg"},
-        {name: 'Spirit', imgUrl: "https://www.jpl.nasa.gov/missions/web/mer.jpg"}
-        ],
-};
+    rovers: Immutable.List([
+        Immutable.Map({name: 'Curiosity', imgUrl: "https://mars.nasa.gov/system/feature_items/images/6037_msl_banner.jpg"}),
+        Immutable.Map({name: 'Opportunity', imgUrl: "https://www.jpl.nasa.gov/missions/web/mer.jpg"}),
+        Immutable.Map({name: 'Spirit', imgUrl: "https://www.jpl.nasa.gov/missions/web/mer.jpg"})
+        ]),
+    load: true
+});
 
 // add our markup to the page
 const root = document.getElementById('root');
 
-const updateStore = (store, newState) => {
-    store = Object.assign(store, newState)
+const updateStore = (state, newState) => {
+    store = state.merge(newState);
     render(root, store).then(() => console.log("Store updated"));
 };
 
 const render = async (root, state) => {
     getRoverImages(state);
-    root.innerHTML = App(state)
+    root.innerHTML = App(state);
 };
 
 // create content
 const App = (state) => {
-    let { rovers, apod } = state;
-
+    const rovers = state.get("rovers");
+    const apod = state.get("apod");
     return `
         <header></header>
         <main>
-        <section>
-            ${ImageOfTheDay(apod)}
-        </section>
+            <h1 style="text-align: center">MARS DASHBOARD PROJECT</h1>
+            <section>
+                ${ImageOfTheDay(apod)}
+            </section>
            <section id="rovers-select">
                 ${renderRoverChooser(rovers)}
-           </section> 
-           
+           </section>  
         </main>
         <footer></footer>
     `
@@ -51,13 +52,8 @@ window.addEventListener('load', () => {
 const ImageOfTheDay = (apod) => {
     // If image does not already exist, or it is not from today -- request it again
     const today = new Date();
-    const photodate = new Date(apod.date);
-    console.log(photodate.getDate(), today.getDate());
-
-    console.log(photodate.getDate() === today.getDate());
     if (!apod || apod.date === today.getDate() ) {
         getImageOfTheDay(store);
-        console.log("Apod", apod);
     }
     // check if the photo of the day is actually type video!
     if (apod.media_type === "video") {
@@ -72,21 +68,25 @@ const ImageOfTheDay = (apod) => {
 };
 
 const renderImageOfTheDay = (apod) => {
-    return (`
+    if(apod && apod.toObject()) {
+        const objectApod = apod.toObject();
+        return (`
         <div class="container" style="max-width: 60%">
             <div class="card">
                 <div class="card-header">
                     Astronomy Picture of the Day
                 </div>
-                <img src="${apod.image.url}" class="card-img-top" height="100%" width="100%" alt=${apod.image.title}/>
+                <img src="${objectApod.image.url}" class="card-img-top" height="100%" width="100%" alt=${objectApod.image.title}/>
                 <div class="card-body">
-                    <h5 class="card-title">${apod.image.title}</h5>
-                    <h6 class="card-subtitle">&#169;${apod.image.copyright} | ${apod.image.date}</h6>
-                    ${renderModal(apod)}
+                    <h5 class="card-title">${objectApod.image.title}</h5>
+                    <h6 class="card-subtitle">&#169;${objectApod.image.copyright} | ${objectApod.image.date}</h6>
+                    ${renderModal(objectApod)}
                 </div>
             </div>
         </div>
     `)
+    }
+    return "";
 };
 
 const renderModal = (apod) => {
@@ -125,29 +125,13 @@ const renderModal = (apod) => {
 
 // Example API call
 const getImageOfTheDay = (state) => {
-    // let { apod } = state;
-    const apod = {
-        image: {
-            copyright: 'Jose Mtanous',
-            date: '2020-10-24',
-            explanation: 'Globular star cluster 47 Tucanae is a jewel of the southern sky. Also known as NGC 104, it roams the halo of our Milky Way Galaxy along with some 200 other globular star clusters. The second brightest globular cluster (after Omega Centauri) as seen from planet Earth, it lies about 13,000 light-years away and can be spotted naked-eye close on the sky to the Small Magellanic Cloud in the constellation of the Toucan. The dense cluster is made up of hundreds of thousands of stars in a volume only about 120 light-years across. Red giant stars on the outskirts of the cluster are easy to pick out as yellowish stars in this sharp telescopic portrait. Tightly packed globular cluster 47 Tuc is also home to a star with the closest known orbit around a black hole.',
-            hdurl: 'https://apod.nasa.gov/apod/image/2010/ngc104v1Mtanous.jpg',
-            media_type: 'image',
-            service_version: 'v1',
-            title: 'Globular Star Cluster 47 Tuc',
-            url: 'https://apod.nasa.gov/apod/image/2010/ngc104v1Mtanous_1024.jpg'
-        }
-    }
-    updateStore(store, { apod })
-    // fetch(`http://localhost:3000/apod`)
-    //     .then(res => res.json())
-    //     .then(apod => updateStore(store, { apod }));
+    fetch(`http://localhost:3000/apod`)
+        .then(res => res.json())
+        .then(apod => updateStore(store, store.set("apod",Immutable.Map(apod))));
 
-    // return data;
 };
 
 const getRoverImages = (store) => {
-    console.log("STORE", store)
     const data  = {
         method: "POST",
         headers : {
@@ -155,26 +139,30 @@ const getRoverImages = (store) => {
             'Content-Type': 'application/json'
         },
     }
-    if(!store.rovers.some(rover => rover.hasOwnProperty("photos"))) {
-        data.body = JSON.stringify({date: "2018-01-24"})
-        Promise.all(store.rovers.map(rover => {
-            const newRover = JSON.parse(JSON.stringify(rover));
-            if(!rover.hasOwnProperty("photos")) {
-                return fetch(`http://localhost:3000/rovers/rover/${rover.name.toLowerCase()}`, data)
+    if(store.get("load")) {
+        data.body = JSON.stringify({date: "2018-01-24"});
+        Promise.all(store.get("rovers").map(rover => {
+            const newRover = Immutable.Map(rover);
+            const photos = rover.get("photos");
+            if(!photos) {
+                return fetch(`http://localhost:3000/rovers/rover/${rover.get("name").toLowerCase()}`, data)
                     .then(res => res.ok ? res.json() : false)
                     .then(jsonRes => {
-                        console.log("Json Res", jsonRes);
                         if (jsonRes.hasOwnProperty("roverData") && jsonRes.roverData.hasOwnProperty("photos") && jsonRes.roverData.photos.length > 0) {
-                            newRover.photos = jsonRes.roverData.photos;
-                            newRover.landingDate = newRover.photos[0]["rover"]["landing_date"];
-                            newRover.launchDate = newRover.photos[0]["rover"]["launch_date"];
-                            newRover.status = newRover.photos[0]["rover"]["status"];
+                            const roverPhotos = newRover.set("photos", Immutable.List(jsonRes.roverData.photos));
+                            const roverLaunchDate = roverPhotos.merge(roverPhotos.set("launchDate", roverPhotos.get("photos").first()["rover"]["launch_date"]));
+                            const roverLandingDate = roverLaunchDate.merge(roverLaunchDate.set("landingDate", roverPhotos.get("photos").first()["rover"]["landing_date"]));
+                            const roverStatus = roverLandingDate.merge(roverLandingDate.set("status", roverPhotos.get("photos").first()["rover"]["status"]));
+                            return roverStatus;
                         }
                         return newRover;
                     });
             }
-            return newRover;
-        })).then(rovers =>  updateStore(store, { rovers }));
+           return newRover
+        })).then(rovers => {
+            const loadStore = store.merge(store.set("load", false));
+            updateStore(store, loadStore.set("rovers", rovers));
+        });
     }
 };
 

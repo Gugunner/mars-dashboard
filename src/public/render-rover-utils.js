@@ -1,5 +1,6 @@
 const renderRoverChooser = rovers => {
-    return `
+    if(rovers && rovers.length > 0) {
+        return `
         <div class="card text-center" style="width: 60%">
           <div class="card-header">
             <ul class="nav nav-tabs" id="rovers-tabs" role="tablist">
@@ -9,52 +10,62 @@ const renderRoverChooser = rovers => {
                ${renderRoverData(rovers)}
         </div>
     `
+    }
+    return "";
 };
 
 const renderRoverTab = (rover, idx) => {
-    const roverClass = `"nav-link ${idx === 0 ? " active" : ""}`;
-    const selected = idx === 0 ? "true" : "false";
-    return `
+    if(rover && rover.toObject()) {
+        const roverObject = rover.toObject();
+        const roverClass = `nav-link ${idx === 0 ? " active" : ""}`;
+        const selected = idx === 0 ? "true" : "false";
+        return `
             <li class="nav-item" role="presentation">
-                <a class="${roverClass}" id="${rover.name.toLowerCase()}-tab" data-toggle="tab" href="#${rover.name.toLowerCase()}" role="tab" aria-controls="${rover.name.toLowerCase()}" aria-selected=${selected}>
-                    ${rover.name.toUpperCase()}
+                <a class="${roverClass}" id="${roverObject.name.toLowerCase()}-tab" data-toggle="tab" href="#${roverObject.name.toLowerCase()}" role="tab" aria-controls="${roverObject.name.toLowerCase()}" aria-selected=${selected}>
+                    ${roverObject.name.toUpperCase()}
                 </a>
             </li>
        `
+    }
+   return "";
 };
 
 const renderRoverData = rovers => {
     return `
         <div class="tab-content">
             ${rovers.map((rover,idx) => {
-        const roverClass = `tab-pane fade ${idx === 0 ? " show active" : "" } `
-        return ` 
-                 <div class="${roverClass}" id=${rover.name.toLowerCase()} role="tabpanel" aria-labeledby="${rover.name.toLowerCase()}-tab">
+        if(rover && rover.toObject()) {
+            const roverObject = rover.toObject();
+            const roverClass = `tab-pane fade ${idx === 0 ? " show active" : ""} `;
+            return ` 
+                 <div class="${roverClass}" id=${roverObject.name.toLowerCase()} role="tabpanel" aria-labeledby="${roverObject.name.toLowerCase()}-tab">
                     <div class="card-body" id="rovers-content">
-                        <h5>${rover.name.toUpperCase()} IMAGES</h5>                      
-                        ${rover.hasOwnProperty("photos") ? renderRoverPhotosCarousel(rover) : ""}
+                        <h5>${roverObject.name.toUpperCase()} IMAGES</h5>                      
+                        ${roverObject.hasOwnProperty("photos") ? renderRoverPhotosCarousel(roverObject) : "No photos were found, try again tomorrow"}
                         <p class="card-text">
                             <small class="text-muted">
-                                ${rover.hasOwnProperty("landingDate") ? `Landing Date: ${rover.landingDate} | ` : ""} 
-                                ${rover.hasOwnProperty("launchDate") ? `Launch Date: ${rover.launchDate} |` : ""} 
-                                ${rover.hasOwnProperty("status") ? `Status: ${rover.status}` : ""} 
+                                ${roverObject.hasOwnProperty("launchDate") ? `Launch Date: ${roverObject.launchDate} |` : ""} 
+                                ${roverObject.hasOwnProperty("landingDate") ? `Landing Date: ${roverObject.landingDate} | ` : ""} 
+                                ${roverObject.hasOwnProperty("status") ? `Status: ${roverObject.status}` : ""} 
                             </small>
                         </p>
                     </div>
                 </div>
                 `
+        }
+        return "";
     }).join("")}
         </div>
   `
 };
 
 const renderRoverPhotosCarousel = rover => {
-    return `
+        return `
         <div id="${rover.name.toLowerCase()}-carousel" class="carousel slide" data-ride="carousel">
           <div class="carousel-inner">
             ${rover.photos.map((photo, idx) => {
-        const carouselClass = `carousel-item ${idx === 0 ? "active" : ""}`;
-        return `
+            const carouselClass = `carousel-item ${idx === 0 ? "active" : ""}`;
+            return `
                     <div class="${carouselClass}" data-interval="2000" data-pause="true">
                         <img src=${photo["img_src"]} alt="Photo ${rover.name.toLowerCase()}">
                         <div class="carousel-caption d-none d-md-block" style="background-color: rgba(78,78,78,0.8)">
@@ -62,7 +73,7 @@ const renderRoverPhotosCarousel = rover => {
                         </div>
                     </div>
                 `
-    }).join("")}
+        }).join("")}
           </div>
           <a class="carousel-control-prev" href="#${rover.name.toLowerCase()}-carousel" role="button" data-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>

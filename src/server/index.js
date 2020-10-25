@@ -22,7 +22,6 @@ app.get('/apod', async (req, res) => {
     try {
         let image = await fetch(`${process.env["MARS_API_URL"]}/planetary/apod?date=${nowDate}&api_key=${process.env["MARS_API_KEY"]}`)
             .then(res => res.json())
-        console.log("IMAGE", image);
         res.send({ image })
     } catch (err) {
         console.log('error:', err);
@@ -31,11 +30,9 @@ app.get('/apod', async (req, res) => {
 
 app.post("/rovers/rover/:name", async(req, res) => {
     const { date } = req.body;
-    console.log("BODY", req.body);
     try {
         let roverData = await fetch(`${process.env["MARS_API_URL"]}/mars-photos/api/v1/rovers/${req.params.name}/photos?earth_date=${date}&api_key=${process.env["MARS_API_KEY"]}`)
             .then(res => res.json()).catch(e => console.log(e));
-        console.log("ROVER DATA", roverData);
         res.send({roverData})
     } catch (err) {
         console.log('error:', err);
