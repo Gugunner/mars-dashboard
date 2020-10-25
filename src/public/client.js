@@ -30,7 +30,7 @@ const App = (state) => {
         <header></header>
         <main>
             <h1 style="text-align: center">MARS DASHBOARD PROJECT</h1>
-            <section>
+            <section id="apod">
                 ${ImageOfTheDay(apod)}
             </section>
            <section id="rovers-select">
@@ -72,7 +72,7 @@ const renderImageOfTheDay = (apod) => {
     if(apod && apod.toObject()) {
         const objectApod = apod.toObject();
         return (`
-        <div class="container" style="max-width: 60%">
+        <div class="container">
             <div class="card">
                 <div class="card-header">
                     Astronomy Picture of the Day
@@ -125,7 +125,6 @@ const renderModal = (apod) => {
 
 // ------------------------------------------------------  API CALLS
 
-// Example API call
 const getImageOfTheDay = (state) => {
     fetch(`http://localhost:3000/apod`)
         .then(res => res.json())

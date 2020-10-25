@@ -2,13 +2,15 @@
 const renderRoverChooser = rovers => {
     if(rovers && rovers.length > 0) {
         return `
-        <div class="card text-center" style="width: 60%">
-          <div class="card-header">
-            <ul class="nav nav-tabs" id="rovers-tabs" role="tablist">
-               ${rovers.map(renderRoverTab).join(" ")}
-            </ul>
-          </div>
-               ${renderRoverData(rovers)}
+        <div class="container">
+            <div class="card text-center">
+              <div class="card-header">
+                <ul class="nav nav-tabs" id="rovers-tabs" role="tablist">
+                   ${rovers.map(renderRoverTab).join(" ")}
+                </ul>
+              </div>
+                   ${renderRoverData(rovers)}
+            </div>
         </div>
     `
     }
@@ -70,7 +72,7 @@ const renderRoverPhotosCarousel = rover => {
             return `
                     <div class="${carouselClass}" data-interval="2000" data-pause="true">
                         <img src=${photo["img_src"]} alt="Photo ${rover.name.toLowerCase()}">
-                        <div class="carousel-caption d-none d-md-block" style="background-color: rgba(78,78,78,0.8)">
+                        <div class="carousel-caption d-xs-block" style="background-color: rgba(78,78,78,0.8)">
                              ${photo.hasOwnProperty("earth_date") ? `Photo Date: ${new Date(photo["earth_date"]).toLocaleString()}` : ""} 
                         </div>
                     </div>

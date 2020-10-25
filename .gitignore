@@ -1,4 +1,4 @@
-/.env
+
 
 .DS_Store
 
@@ -6,4 +6,3 @@
 
 /node_modules
 
-src/public/assets/temp/

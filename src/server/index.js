@@ -12,9 +12,6 @@ app.use(bodyParser.json());
 
 app.use('/', express.static(path.join(__dirname, '../public')));
 
-// your API calls
-
-// example API call
 app.get('/apod', async (req, res) => {
     const date = new Date();
     const nowDate = new Date(date.toLocaleDateString()).toISOString().split("T")[0];
