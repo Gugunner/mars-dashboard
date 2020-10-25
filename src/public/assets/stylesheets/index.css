@@ -52,6 +52,28 @@ footer {
   width: 80%;
 }
 
+.card-header {
+  background-color: black !important;
+  color: white;
+}
+
+.btn-primary {
+  background-color: cadetblue !important;
+}
+
+.nav-link {
+  color: white;
+}
+
+.nav-link:hover {
+  color: white !important;
+}
+
+.nav-link.active {
+  color: white !important;
+  background-color: cadetblue !important;
+}
+
 /* -------------------  TABLET  --------------------- */
 @media (min-width: 768px) {
   /* use mobile */
