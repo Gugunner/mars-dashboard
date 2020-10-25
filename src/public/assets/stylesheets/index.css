@@ -20,6 +20,60 @@ footer {
   /* footer styles */
 }
 
+.rover-img {
+  width: 80%;
+  height: 300px;
+}
+
+#rovers-select {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-item {
+  padding: 16px;
+}
+
+.carousel {
+  background-color:rgba(78 78 78/0.8);
+}
+
+.carousel-inner {
+  max-height: 800px;
+}
+
+.carousel-item {
+  height: 100%;
+}
+
+.carousel-item img {
+  height: 50%;
+  width: 80%;
+}
+
+.card-header {
+  background-color: black !important;
+  color: white;
+}
+
+.btn-primary {
+  background-color: cadetblue !important;
+}
+
+.nav-link {
+  color: white;
+}
+
+.nav-link:hover {
+  color: white !important;
+}
+
+.nav-link.active {
+  color: white !important;
+  background-color: cadetblue !important;
+}
+
 /* -------------------  TABLET  --------------------- */
 @media (min-width: 768px) {
   /* use mobile */
@@ -29,6 +83,7 @@ footer {
 
 @media (min-width: 1224px) {
   /* use mobile */
+
 }
 
 /* -------------------  LARGE SCREENS  -------------- */
