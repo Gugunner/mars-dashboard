@@ -1,3 +1,4 @@
+//renders all the components of rover chooser
 const renderRoverChooser = rovers => {
     if(rovers && rovers.length > 0) {
         return `
@@ -30,6 +31,7 @@ const renderRoverTab = (rover, idx) => {
    return "";
 };
 
+//Renders rover data and checks for specific info to add as footer
 const renderRoverData = rovers => {
     return `
         <div class="tab-content">
