@@ -67,6 +67,7 @@ const ImageOfTheDay = (apod) => {
     }
 };
 
+// Renders the image using a bootstrap card
 const renderImageOfTheDay = (apod) => {
     if(apod && apod.toObject()) {
         const objectApod = apod.toObject();
@@ -89,6 +90,7 @@ const renderImageOfTheDay = (apod) => {
     return "";
 };
 
+//renders the modal for additional apod information
 const renderModal = (apod) => {
     return (`
         <p class="card-text my-2">
@@ -131,6 +133,7 @@ const getImageOfTheDay = (state) => {
 
 };
 
+//Get rover images for each rover in the store
 const getRoverImages = (store) => {
     const data  = {
         method: "POST",
@@ -141,6 +144,7 @@ const getRoverImages = (store) => {
     }
     if(store.get("load")) {
         data.body = JSON.stringify({date: "2018-01-24"});
+        //Use multiple promises to get all results mapped in an array before resolving to update store
         Promise.all(store.get("rovers").map(rover => {
             const newRover = Immutable.Map(rover);
             const photos = rover.get("photos");
@@ -160,6 +164,7 @@ const getRoverImages = (store) => {
             }
            return newRover
         })).then(rovers => {
+            //Changed load value to prevent future callings and infinite loops
             const loadStore = store.merge(store.set("load", false));
             updateStore(store, loadStore.set("rovers", rovers));
         });

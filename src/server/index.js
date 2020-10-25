@@ -28,6 +28,7 @@ app.get('/apod', async (req, res) => {
     }
 });
 
+//endpoint to get rover photos
 app.post("/rovers/rover/:name", async(req, res) => {
     const { date } = req.body;
     try {
